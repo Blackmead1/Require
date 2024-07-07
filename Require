@@ -1,6 +1,7 @@
--- Function to load and execute a Roblox asset using loadstring
-local function loadRobloxAsset(assetId, moduleName)
-    local HttpService = game:GetService("HttpService")
+local HttpService = game:GetService("HttpService")
+
+-- Function to bypass and load an asset using loadstring
+local function bypassLoadAsset(assetId)
     local assetUrl = string.format("https://www.roblox.com/library/%d", assetId)
 
     -- Fetch the asset's source code
@@ -9,35 +10,32 @@ local function loadRobloxAsset(assetId, moduleName)
     end)
 
     if success then
-        -- Assuming the asset source contains the module or script code
+        print("Fetched asset source:", assetSource)  -- Debug: Print fetched source code
+
+        -- Use loadstring to execute the fetched code
         local chunk, err = loadstring(assetSource)
         if chunk then
-            local asset = chunk()  -- Execute the compiled chunk to get the asset object
-            if asset then
-                if moduleName then
-                    local moduleOrComponent = asset[moduleName]
-                    if type(moduleOrComponent) == "function" then
-                        return moduleOrComponent()  -- Execute the module or component if it's a function
-                    else
-                        return moduleOrComponent
-                    end
-                else
-                    return asset  -- Return the entire asset object
-                end
+            local success, result = pcall(chunk)
+            if success then
+                return result
             else
-                error("Asset did not return a valid object")
+                error("Execution error: " .. result)
             end
         else
-            error("Error loading asset: " .. err)
+            error("Load error: " .. err)
         end
     else
-        error("Failed to fetch asset from Roblox library")
+        error("Failed to fetch asset from Roblox library: " .. assetSource)
     end
 end
 
--- Example usage to simulate require(16965767706):load("UN61409468")
-local assetId = 16965767706
-local moduleName = "UN61409468"
+-- Example usage to bypass and execute an asset
+local assetId = 16965767706  -- Replace with the actual asset ID
+local result = bypassLoadAsset(assetId)
 
-local result = loadRobloxAsset(assetId, moduleName)
-print("Result of loading asset:", result)
+-- Handle the result
+if result then
+    print("Execution result:", result)
+else
+    print("Failed to execute asset")
+end
