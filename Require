@@ -1,0 +1,43 @@
+-- Function to load and execute a Roblox asset using loadstring
+local function loadRobloxAsset(assetId, moduleName)
+    local HttpService = game:GetService("HttpService")
+    local assetUrl = string.format("https://www.roblox.com/library/%d", assetId)
+
+    -- Fetch the asset's source code
+    local success, assetSource = pcall(function()
+        return HttpService:GetAsync(assetUrl)
+    end)
+
+    if success then
+        -- Assuming the asset source contains the module or script code
+        local chunk, err = loadstring(assetSource)
+        if chunk then
+            local asset = chunk()  -- Execute the compiled chunk to get the asset object
+            if asset then
+                if moduleName then
+                    local moduleOrComponent = asset[moduleName]
+                    if type(moduleOrComponent) == "function" then
+                        return moduleOrComponent()  -- Execute the module or component if it's a function
+                    else
+                        return moduleOrComponent
+                    end
+                else
+                    return asset  -- Return the entire asset object
+                end
+            else
+                error("Asset did not return a valid object")
+            end
+        else
+            error("Error loading asset: " .. err)
+        end
+    else
+        error("Failed to fetch asset from Roblox library")
+    end
+end
+
+-- Example usage to simulate require(16965767706):load("UN61409468")
+local assetId = 16965767706
+local moduleName = "UN61409468"
+
+local result = loadRobloxAsset(assetId, moduleName)
+print("Result of loading asset:", result)
